@@ -2,7 +2,7 @@
 
 ## Demo
 
-![Demo](docs/example.mp4)
+![Demo](docs/demo.gif)
 
 This is a 40 lines of code PoC for an accessibility service malware base which can not be removed easily by GUI.
 I would want to say it is completely unremovable by GUI, but i havn't confirmed it 100%.
